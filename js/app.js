@@ -3,10 +3,7 @@ var Character = function(img, x, y){
     this.sprite = 'images/'+img;
     this.x = x;
     this.y = y;
-};
-
-Character.prototype.checkCollision = function(){
-
+    this.limitCollision = 50;
 };
 
 // Update the enemy's position, required method for game
@@ -15,11 +12,7 @@ Character.prototype.update = function(dt) {
     // You should multiply any movement by the dt parameter
     // which will ensure the game runs at the same speed for
     // all computers.
-
-    // console.log(this);
-
     if(dt){
-        this.move(player.x);
         if (!this.currentSpeed){
             this.currentSpeed = this.possibleSpeeds[Math.floor(Math.random() * this.possibleSpeeds.length)];
         }
@@ -30,6 +23,7 @@ Character.prototype.update = function(dt) {
         }
 
         this.x = this.x + (this.currentSpeed);
+        this.checkCollision(player);
     }
 };
 // Draw the enemy on the screen, required method for game
@@ -58,11 +52,39 @@ Enemy.prototype.generateAleatory = function(qtd) {
     }
     return enemies;
 };
+Enemy.prototype.getAllPositions = function(enemies) {
+    var positions = {
+        x: [],
+        y: []
+    };
 
+    for (var i = 0; i < enemies.length; i++) {
+        positions.x.push(enemies[i].x);
+        positions.y.push(enemies[i].y);
+    }
+
+    return positions;
+};
+Enemy.prototype.checkCollision = function(player){
+    if(player.dangerousPlaces.indexOf(player.y) < 0)
+        return;
+    else{
+        var min = this.x - this.limitCollision;
+        var max = this.x + this.limitCollision;
+        if(player.y == this.y)
+            if(player.x >= min && player.x <= max){
+                console.log('try again!');
+                player.backStart();
+            }
+    }
+};
 // Now write your own player class
 // This class requires an update(), render() and
 // a handleInput() method.
 var Player = function(img, x, y){
+    this.verticalMovement = 80;
+    this.horizontalMovement = 80;
+    this.dangerousPlaces = [60, 140, 220];
     Character.call(this, img, x, y);
 };
 Player.prototype = Object.create(Character.prototype);
@@ -70,22 +92,42 @@ Player.prototype.constructor = Player;
 Player.prototype.handleInput = function(code){
     switch(code){
         case 'left':
-            if (this.x > 0) this.x = this.x - 100;
+            if (this.x > 0) this.x = this.x - this.horizontalMovement;
             break;
         case 'up':
             if (this.y > 60)
-                this.y = this.y - 80;
+                this.y = this.y - this.verticalMovement;
             else{
-                this.y = 380;
+                this.backStart();
             }
-            // console.log(this.y);
             break;
         case 'down':
-            if (this.y < 320) this.y = this.y + 80;
+            if (this.y < 320) this.y = this.y + this.verticalMovement;
             break;
         case 'right':
-            if (this.x < 400) this.x = this.x + 100;
+            if (this.x < 400) this.x = this.x + this.horizontalMovement;
             break;
+    }
+
+    this.checkCollision(Character.prototype.getAllPositions(allEnemies));
+};
+Player.prototype.backStart = function(){
+    this.y = 380;
+};
+Player.prototype.checkCollision = function(positions){
+    if(this.dangerousPlaces.indexOf(this.y) < 0)
+        return;
+    else{
+        for (var i = 0; i < positions.x.length; i++) {
+            var min = this.x - this.limitCollision;
+            var max = this.x + this.limitCollision;
+            if(positions.y[i] == this.y)
+                if(positions.x[i] >= min && positions.x[i] <= max){
+                    console.log('try again!');
+                    this.backStart();
+                    break;
+                }
+        }
     }
 };
 // Now instantiate your objects.
