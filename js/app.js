@@ -37,8 +37,8 @@ var Enemy = function(img, x, y) {
 
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
-    this.possibleX = [0, 100, 200, 300, 400];
-    this.possibleY = [60, 140, 220];
+    this.possibleX = [0, 101, 202, 303, 404];
+    this.possibleY = [63, 146, 229];
     this.possibleSpeeds = [200, 300, 400];
     this.currentSpeed = undefined;
     Character.call(this, img, -100, this.possibleY[Math.floor(Math.random() * this.possibleY.length)]);
@@ -82,9 +82,9 @@ Enemy.prototype.checkCollision = function(player){
 // This class requires an update(), render() and
 // a handleInput() method.
 var Player = function(img, x, y){
-    this.verticalMovement = 80;
-    this.horizontalMovement = 80;
-    this.dangerousPlaces = [60, 140, 220];
+    this.verticalMovement = 83;
+    this.horizontalMovement = 101;
+    this.dangerousPlaces = [63, 146, 229];
     Character.call(this, img, x, y);
 };
 Player.prototype = Object.create(Character.prototype);
@@ -95,7 +95,7 @@ Player.prototype.handleInput = function(code){
             if (this.x > 0) this.x = this.x - this.horizontalMovement;
             break;
         case 'up':
-            if (this.y > 60)
+            if (this.y > 63)
                 this.y = this.y - this.verticalMovement;
             else{
                 this.backStart();
@@ -109,10 +109,10 @@ Player.prototype.handleInput = function(code){
             break;
     }
 
-    this.checkCollision(Character.prototype.getAllPositions(allEnemies));
+    this.checkCollision(Enemy.prototype.getAllPositions(allEnemies));
 };
 Player.prototype.backStart = function(){
-    this.y = 380;
+    this.y = 395;
 };
 Player.prototype.checkCollision = function(positions){
     if(this.dangerousPlaces.indexOf(this.y) < 0)
@@ -135,7 +135,7 @@ Player.prototype.checkCollision = function(positions){
 // Place the player object in a variable called player
 
 var allEnemies = Enemy.prototype.generateAleatory(3);
-var player = new Player('char-boy.png', 200, 380);
+var player = new Player('char-boy.png', 200, 395);
 
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
